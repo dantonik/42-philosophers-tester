@@ -92,12 +92,12 @@ perc_correct_die () {
         printf "$i\t"
         lines=$($philo $1 $2 $3 $4 $5 > test)
         if [ $(tail -n 1 test | grep -c died) -ne 0 ]; then
-            printf "${OK_COLOR}Yay${RESET}\t"
+            printf "${OK_COLOR}Pass${RESET}\t"
             printf "${OK_COLOR}[✓]${RESET}\t"
             printf "$(tail -n 1 test)\n"
             (( count_correct++ ))
         else
-            printf "${ERROR_COLOR}Damn${RESET}\t"
+            printf "${ERROR_COLOR}Fail${RESET}\t"
             printf "${ERROR_COLOR}[x]${RESET}\t"
             printf "$(tail -n 1 test)\n"
             cat test > ${folder}$1-$2-$3-$4-$5_$i
@@ -115,13 +115,13 @@ perc_correct_live () {
         printf "$i\t"
         lines=$($philo $1 $2 $3 $4 $5 > test)
         if [ $(tail -n 1 test | grep -c died) -ne 0 ]; then
-            printf "${ERROR_COLOR}Damn${RESET}\t"
+            printf "${ERROR_COLOR}Fail${RESET}\t"
             printf "${ERROR_COLOR}[x]${RESET}\t"
             printf "$(tail -n 1 test)\n"
             cat test > ${folder}$1-$2-$3-$4-$5_$i
             (( count_false++ ))
         else
-            printf "${OK_COLOR}Yay${RESET}\t"
+            printf "${OK_COLOR}Pass${RESET}\t"
             printf "${OK_COLOR}[✓]${RESET}\t"
             printf "$(tail -n 1 test)\n"
             (( count_correct++ ))

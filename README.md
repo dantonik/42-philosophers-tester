@@ -22,12 +22,18 @@ Run ./test.sh when inside the repo's directory.
 ./test.sh
 ```
 #### Usage optional
-You can add the path as an argument if your folder structure looks differently.
+You can add the path to as an argument if your folder structure looks differently.
 ```bash
-./test.sh /path/to/file
+./test.sh /path/to/philo
 ```
 -i iterations
+```bash
+./test.sh -i 10
+```
 -t times_to_eat
+```bash
+./test.sh -t 10
+```
 
 ### Failed tests
 The output of your failed test(s) get saved in the 'fails' folder for further inspection.

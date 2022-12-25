@@ -49,3 +49,10 @@ Experimental integration with a [Philosophers Visualizer](https://nafuka11.githu
 
 ### Why
 Because the [Lazy Philosophers Tester](https://github.com/MichelleJiam/LazyPhilosophersTester) is a bit tedious and only semiautomatic.
+
+### Future ideas
+- Leak checking
+- Visualizer
+- Data race checking
+- Death lock checking
+- Wiki How-To Philo

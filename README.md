@@ -22,7 +22,7 @@ Run ./test.sh when inside the repo's directory.
 ./test.sh
 ```
 ### Usage optional
-You can add the path to as an argument if your folder structure looks differently.
+You can add the path to your philo executable as an argument if your folder structure looks differently.
 ```bash
 ./test.sh /path/to/philo
 ```

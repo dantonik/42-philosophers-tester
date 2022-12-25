@@ -12,8 +12,8 @@ You must have the following file structure:
 ```
 ├─ philo/
 │  ├─ *.*
-├─ 42-philosophers-tester/
-│  ├─ test.sh
+│  ├─ philosophers-tester/
+│  │  ├─test.sh
 ```
 
 ## Usage

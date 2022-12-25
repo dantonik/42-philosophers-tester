@@ -26,11 +26,11 @@ You can add the path to as an argument if your folder structure looks differentl
 ```bash
 ./test.sh /path/to/philo
 ```
--i iterations
+[-i iterations]
 ```bash
 ./test.sh -i 10
 ```
--t times_to_eat
+[-t times_to_eat]
 ```bash
 ./test.sh -t 10
 ```

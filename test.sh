@@ -1,7 +1,34 @@
 #!/bin/bash
-perc=0
-iterations=10
+percent=0
+count_correct_all=0
+count_false_all=0
+iterations=5
+times_to_eat=10
 folder=fails/
+tempfile=tempfile
+trap "rm -f $tempfile" EXIT
+
+# function cleanup()
+# {
+#     # ...
+# }
+# trap cleanup EXIT
+
+while getopts i:t: OPTION; do
+  case "$OPTION" in
+    i)
+      iterations="$OPTARG"
+      ;;
+    t)
+      times_to_eat="$OPTARG"
+      ;;
+    ?)
+      printf "script usage: $0 [-i iterations] [-t times_to_eat] [path]\n" >&2
+      exit 1
+      ;;
+  esac
+done
+shift "$(($OPTIND -1))"
 
 COM_COLOR="\033[0;34m"
 OBJ_COLOR="\033[0;36m"
@@ -15,6 +42,10 @@ PURPLE_BOLD="\033[1;35m"
 OK_COLOR_BOLD="\033[0;32m"
 ERROR_COLOR_BOLD="\033[0;31m"
 WARN_COLOR_BOLD="\033[0;33m"
+
+DEFCL="\033[0m"
+DEL_R="\033[A\r"
+DEL_K="\033[K\r"
 
 if [ "$#" -gt 1 ]; then
 	printf "Invalid input!\n"
@@ -40,6 +71,17 @@ if ! command ${philo} 5 200 100 100 &> /dev/null; then
     printf "Couldn't execute \"${philo}\"!\n"
     exit 1
 fi
+
+print_loading_bar () {
+    printf "LOADING\t"
+    for (( x=0; x <= $1; x+=10)) ; do
+    {
+        if (( $1 % 10 == 0 )) ; then
+            printf "${BH_OK_COLOR}#${RESET}"
+        fi
+    }
+    done
+}
 
 visualizer () {
     printf "\n\n${COM_COLOR}Visualize failed tests\t[0]${RESET}\n\n"
@@ -130,21 +172,23 @@ die () {
     printf "\t${WARN_COLOR}$1 $2 $3 $4 $5${RESET}\n"
     for (( i=1; i <= $iterations; i++)) ; do
         printf "$i\t"
-        lines=$($philo $1 $2 $3 $4 $5 > test)
-        if [ $(tail -n 1 test | grep -c died) -ne 0 ]; then
+        lines=$($philo $1 $2 $3 $4 $5 > ${tempfile})
+        if [ $(tail -n 1 ${tempfile} | grep -c died) -ne 0 ]; then
             printf "${OK_COLOR}Pass${RESET}\t"
             printf "${OK_COLOR}[✓]${RESET}\t"
-            printf "$(tail -n 1 test)\n"
+            printf "$(tail -n 1 ${tempfile})\n"
             (( count_correct++ ))
+            (( count_correct_all++ ))
         else
             printf "${ERROR_COLOR}Fail${RESET}\t"
             printf "${ERROR_COLOR}[x]${RESET}\t"
-            printf "$(tail -n 1 test)\n"
-            cat test > ${folder}$1-$2-$3-$4-$5_$i
+            printf "$(tail -n 1 ${tempfile})\n"
+            cat ${tempfile} > ${folder}$1-$2-$3-$4-$5_$i
             (( count_false++ ))
+            (( count_false_all++ ))
         fi
     done
-    print_perc `awk -v count="$count_correct" -v tests="$iterations" 'BEGIN {print 100 / tests * count}'`
+    print_percent `awk -v count="$count_correct" -v tests="$iterations" 'BEGIN {print 100 / tests * count}'`
 }
 
 live () {
@@ -153,25 +197,26 @@ live () {
     printf "\t${WARN_COLOR}$1 $2 $3 $4 $5${RESET}\n"
     for (( i=1; i <= $iterations; i++)) ; do
         printf "$i\t"
-        lines=$($philo $1 $2 $3 $4 $5 > test)
-        if [ $(tail -n 1 test | grep -c died) -ne 0 ]; then
+        lines=$($philo $1 $2 $3 $4 $5 > ${tempfile})
+        if [ $(tail -n 1 ${tempfile} | grep -c died) -ne 0 ]; then
             printf "${ERROR_COLOR}Fail${RESET}\t"
             printf "${ERROR_COLOR}[x]${RESET}\t"
-            printf "$(tail -n 1 test)\n"
-            cat test > ${folder}$1-$2-$3-$4-$5_$i
+            printf "$(tail -n 1 ${tempfile})\n"
+            cat ${tempfile} > ${folder}$1-$2-$3-$4-$5_$i
             (( count_false++ ))
+            (( count_false_all++ ))
         else
             printf "${OK_COLOR}Pass${RESET}\t"
             printf "${OK_COLOR}[✓]${RESET}\t"
-            printf "$(tail -n 1 test)\n"
+            printf "$(tail -n 1 ${tempfile})\n"
             (( count_correct++ ))
+            (( count_correct_all++ ))
         fi
     done
-    print_perc `awk -v count="$count_correct" -v tests="$iterations" 'BEGIN {print 100 / tests * count}'`
+    print_percent `awk -v count="$count_correct" -v tests="$iterations" 'BEGIN {print 100 / tests * count}'`
 }
 
-print_perc () {
-    printf "____________________________________________\n"
+print_percent () {
     if [ $1 -gt 89 ]; then
         printf "\t${OK_COLOR_BOLD}$1 %% correct${RESET}\n" 
     elif [ $1 -gt 69 ]; then
@@ -184,29 +229,94 @@ print_perc () {
 
 uneven_live () {
     printf "${OBJ_COLOR}Testing uneven numbers - they shouldn't die${RESET}\n\n"
-    live 5 800 200 200 10
-    live 5 610 200 200 10 245
-    live 199 610 200 200 10 10000
+    live 5 800 200 200 $times_to_eat
+    live 5 610 200 200 $times_to_eat
+    live 199 610 200 200 $times_to_eat
+}
+
+uneven_live_extended () {
+    printf "${OBJ_COLOR}Testing uneven numbers (overkill) - they shouldn't die${RESET}\n\n"
+    live 5 610 200 100 $times_to_eat
+    live 5 601 200 200 $times_to_eat
+    live 31 610 200 100 $times_to_eat
+    live 31 610 200 200 $times_to_eat
+    live 31 605 200 200 $times_to_eat
+    live 31 601 200 200 $times_to_eat
+    live 131 610 200 100 $times_to_eat
+    live 131 610 200 200 $times_to_eat
+    live 131 605 200 200 $times_to_eat
+    live 131 601 200 200 $times_to_eat
+    live 199 610 200 100 $times_to_eat
+    live 199 610 200 200 $times_to_eat
+    live 199 605 200 200 $times_to_eat
+    live 199 601 200 200 $times_to_eat
 }
 
 even_live () {
     printf "${OBJ_COLOR}Testing even numbers - they shouldn't die${RESET}\n"
-    live 4 410 200 200 10 200
-    live 198 610 200 200 10 9800
-    live 198 800 200 200 10 10000
+    live 4 410 200 100 $times_to_eat
+    live 4 410 200 200 $times_to_eat
+    live 198 610 200 200 $times_to_eat
+    live 198 800 200 200 $times_to_eat
+}
+
+even_live_extended () {
+    printf "${OBJ_COLOR}Testing even numbers (overkill) - they shouldn't die${RESET}\n"
+    live 50 410 200 100 $times_to_eat
+    live 50 410 200 200 $times_to_eat
+    live 50 405 200 200 $times_to_eat
+    live 50 401 200 200 $times_to_eat
+    live 130 410 200 100 $times_to_eat
+    live 130 410 200 200 $times_to_eat
+    live 130 405 200 200 $times_to_eat
+    live 130 401 200 200 $times_to_eat
+    live 198 410 200 100 $times_to_eat
+    live 198 410 200 200 $times_to_eat
+    live 198 405 200 200 $times_to_eat
+    live 198 401 200 200 $times_to_eat
 }
 
 even_die () {
     printf "${OBJ_COLOR}Testing even numbers - one should die${RESET}\n"
-    die 3 599 200 200 10 20
-    die 31 599 200 200 10 220
-    die 131 596 200 200 10 920
+    die 3 599 200 200 $times_to_eat
+    die 31 599 200 200 $times_to_eat
+    die 131 596 200 200 $times_to_eat
+}
+
+even_die_extended () {
+    printf "${OBJ_COLOR}Testing even numbers - one should die${RESET}\n"
+    die 4 310 200 100 $times_to_eat
+    die 50 396 200 200 $times_to_eat
+    die 50 399 200 200 $times_to_eat
+    die 50 400 200 200 $times_to_eat
+    die 130 396 200 200 $times_to_eat
+    die 130 399 200 200 $times_to_eat
+    die 130 400 200 200 $times_to_eat
+    die 198 396 200 200 $times_to_eat
+    die 198 399 200 200 $times_to_eat
+    die 198 400 200 200 $times_to_eat
 }
 
 uneven_die () {
     printf "${OBJ_COLOR}Testing uneven numbers - one should die${RESET}\n"
-    die 4 310 200 100 10 25
-    die 1 800 200 100 10 1
+    die 4 310 200 100 $times_to_eat
+    die 1 800 200 100 $times_to_eat
+}
+
+uneven_die_extended () {
+    printf "${OBJ_COLOR}Testing uneven numbers - one should die${RESET}\n"
+    die 3 596 200 200 $times_to_eat
+    die 3 599 200 200 $times_to_eat
+    die 3 600 200 200 $times_to_eat
+    die 31 596 200 200 $times_to_eat
+    die 31 599 200 200 $times_to_eat
+    die 31 600 200 200 $times_to_eat
+    die 131 596 200 200 $times_to_eat
+    die 131 599 200 200 $times_to_eat
+    die 131 600 200 200 $times_to_eat
+    die 199 596 200 200 $times_to_eat
+    die 199 599 200 200 $times_to_eat
+    die 199 600 200 200 $times_to_eat
 }
 
 own_test () {
@@ -230,7 +340,7 @@ own_test () {
 
 text () {
     printf "\e[1;1H\e[2J"
-    printf "\n${COM_COLOR}42 Philosophers Tester${RESET}\t$(date +%Y/%m/%d)\n\n"
+    printf "\n${COM_COLOR}42 Philosophers Tester${RESET}\t$(date +%Y/%m/%d)\nIterations: ${iterations}\n\n"
     printf "${PURPLE_BOLD}All tests\t\t\t\t[0]${RESET}\n\n"
     printf "Uneven numbers that shouldn't die\t[1]\n"
     printf "Even numbers that shouldn't die\t\t[2]\n"
@@ -238,12 +348,14 @@ text () {
     printf "Uneven numbers that should die\t\t[4]\n"
     printf "Even numbers that should die\t\t[5]\n"
     printf "${PURPLE_BOLD}All numbers that should die\t\t[6]${RESET}\n\n"
-    printf "${PURPLE}Own tests\t\t\t\t[7]${RESET}\n\n"
+    printf "${PURPLE}Own tests\t\t\t\t[7]${RESET}\n"
+    printf "Exit Tester\t\t\t\t[ESC]\n\n"
 }
 
 tests
-
 rm -f test
+printf "\n${BOLD}RESULT: passed: ${count_correct_all}\tfailed: ${count_false_all}${RESET}\n"
+print_percent `awk -v count="$count_correct_all" -v tests_fail="$count_false_all" 'BEGIN {print 100 / (count + tests_fail) * count}'`
 
 if [ -z "$(ls -A fails)" ]; then
    rm -rf fails

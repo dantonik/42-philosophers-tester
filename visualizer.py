@@ -12,10 +12,14 @@ try:
     chrome_options.add_experimental_option("detach", True)
     driver = webdriver.Chrome(options=chrome_options)
     driver.get(url)
-except Exception as e:
-    print(f"Error opening the website in Chrome: {e}")
-    driver = webdriver.Firefox()
-    driver.get(url)
+except Exception:
+    print("Error opening the website in Chrome")
+    print("Trying to open in Firefox . . .")
+    try:
+        driver = webdriver.Firefox()
+        driver.get(url)
+    except Exception:
+        print("Error opening the website in Firefox")
 
 
 i = 0

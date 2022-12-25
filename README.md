@@ -21,7 +21,7 @@ Run ./test.sh when inside the repo's directory.
 ```bash
 ./test.sh
 ```
-#### Usage optional
+### Usage optional
 You can add the path to as an argument if your folder structure looks differently.
 ```bash
 ./test.sh /path/to/philo
@@ -37,6 +37,8 @@ You can add the path to as an argument if your folder structure looks differentl
 
 ### Failed tests
 The output of your failed test(s) get saved in the 'fails' folder for further inspection.
+
+### Screenshots
 
 ![Start](img/start.png?raw=true "Start")
 

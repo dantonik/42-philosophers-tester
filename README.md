@@ -7,3 +7,6 @@ Clone the repo into your philosophers folder.
 ```bash
 git clone https://github.com/MichelleJiam/LazyPhilosophersTester.git
 ```
+
+![Start](img/start.png?raw=true "Start")
+![Example](img/example.png?raw=true "Example")

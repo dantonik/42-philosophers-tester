@@ -6,13 +6,15 @@ iterations=10
 times_to_eat=10
 folder=fails/
 tempfile=tempfile
-trap "rm -f $tempfile" EXIT
 
-# function cleanup()
-# {
-#     # ...
-# }
-# trap cleanup EXIT
+function cleanup()
+{
+    rm -f $tempfile
+    if [ -z "$(ls -A fails)" ]; then
+        rm -rf fails
+    fi
+}
+trap cleanup EXIT
 
 while getopts i:t: OPTION; do
   case "$OPTION" in

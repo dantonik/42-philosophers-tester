@@ -3,7 +3,7 @@
 #### Tester for the Dininig Philosophers Problem project at 42 Schools
 
 ## Installation
-Clone the repo into your philosophers folder.  
+Clone the repo into your philosophers folder.
 ```bash
 git clone https://github.com/dantonik/42-philosophers-tester.git
 ```
@@ -12,13 +12,14 @@ You must have the following file structure:
 ```
 ├─ philo/
 │  ├─ *.*
-│  ├─ philosophers-tester/
+│  ├─ 42-philosophers-tester/
 │  │  ├─test.sh
 ```
 
 ## Usage
 Run ./test.sh when inside the repo's directory.
 ```bash
+cd 42-philosophers-tester
 ./test.sh
 ```
 ### Usage optional

@@ -1,7 +1,7 @@
 #!/bin/bash
 perc=0
 iterations=10
-folder=.bin/
+folder=fails/
 
 COM_COLOR="\033[0;34m"
 OBJ_COLOR="\033[0;36m"
@@ -25,10 +25,21 @@ else
     philo=$1
 fi
 
-if [ -d ".bin" ]; then
-    rm -rf .bin; 
+if [ -d "${folder}" ]; then
+    rm -rf ${folder};
 fi
-mkdir .bin
+
+mkdir ${folder}
+
+if [ ! -x "${philo}" ]; then
+    make re
+fi
+
+if ! command ${philo} 5 200 100 100 &> /dev/null; then
+    printf "\e[1;1H\e[2J"
+    printf "Couldn't execute \"${philo}\"!\n"
+    exit 1
+fi
 
 tests () {
     text
@@ -74,6 +85,7 @@ tests () {
             exit 0
             ;;
 		$'\e')
+            printf "\e[1;1H\e[2J"
 			exit 0
 			;;
 		*)
@@ -84,7 +96,7 @@ tests () {
 	esac
 }
 
-perc_correct_die () {
+die () {
     count_false=0
     count_correct=0
     printf "\t${WARN_COLOR}$1 $2 $3 $4 $5${RESET}\n"
@@ -104,10 +116,10 @@ perc_correct_die () {
             (( count_false++ ))
         fi
     done
-    perc=$(awk -v count="$count_correct" -v tests="$iterations" 'BEGIN {print 100 / tests * count}')
+    print_perc `awk -v count="$count_correct" -v tests="$iterations" 'BEGIN {print 100 / tests * count}'`
 }
 
-perc_correct_live () {
+live () {
     count_false=0
     count_correct=0
     printf "\t${WARN_COLOR}$1 $2 $3 $4 $5${RESET}\n"
@@ -144,29 +156,29 @@ print_perc () {
 
 uneven_live () {
     printf "${OBJ_COLOR}Testing uneven numbers - they shouldn't die${RESET}\n\n"
-    perc_correct_live 5 800 200 200 10
-    perc_correct_live 5 610 200 200 10 245
-    perc_correct_live 199 610 200 200 10 10000
+    live 5 800 200 200 10
+    live 5 610 200 200 10 245
+    live 199 610 200 200 10 10000
 }
 
 even_live () {
     printf "${OBJ_COLOR}Testing even numbers - they shouldn't die${RESET}\n"
-    perc_correct_live 4 410 200 200 10 200
-    perc_correct_live 198 610 200 200 10 9800
-    perc_correct_live 198 800 200 200 10 10000
+    live 4 410 200 200 10 200
+    live 198 610 200 200 10 9800
+    live 198 800 200 200 10 10000
 }
 
 even_die () {
     printf "${OBJ_COLOR}Testing even numbers - one should die${RESET}\n"
-    perc_correct_die 3 599 200 200 10 20
-    perc_correct_die 31 599 200 200 10 220
-    perc_correct_die 131 596 200 200 10 920
+    die 3 599 200 200 10 20
+    die 31 599 200 200 10 220
+    die 131 596 200 200 10 920
 }
 
 uneven_die () {
     printf "${OBJ_COLOR}Testing uneven numbers - one should die${RESET}\n"
-    perc_correct_die 4 310 200 100 10 25
-    perc_correct_die 1 800 200 100 10 1
+    die 4 310 200 100 10 25
+    die 1 800 200 100 10 1
 }
 
 own_test () {
@@ -182,9 +194,9 @@ own_test () {
     printf "\n$n_philos $time_to_die $time_to_eat $time_to_sleep $number_of_times_each_philosopher_must_eat"
     read -r -n 1 -p $'\n\nShould die?\t[0]\nShouldn\'t die?\t[1]\n' should_die
     if [ $should_die -eq 0 ]; then
-        perc_correct_die $n_philos $time_to_die $time_to_eat $time_to_sleep $number_of_times_each_philosopher_must_eat
+        die $n_philos $time_to_die $time_to_eat $time_to_sleep $number_of_times_each_philosopher_must_eat
     else
-        perc_correct_live $n_philos $time_to_die $time_to_eat $time_to_sleep $number_of_times_each_philosopher_must_eat
+        live $n_philos $time_to_die $time_to_eat $time_to_sleep $number_of_times_each_philosopher_must_eat
     fi
 }
 

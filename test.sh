@@ -41,6 +41,34 @@ if ! command ${philo} 5 200 100 100 &> /dev/null; then
     exit 1
 fi
 
+visualizer () {
+    printf "\n\n${COM_COLOR}Visualize failed tests\t[0]${RESET}\n\n"
+    printf "${BOLD}Keep failed tests\t\t\t\t[1]${RESET}\n\n"
+    printf "${BOLD}Delete failed tests\t\t\t\t[2]${RESET}\n\n"
+    read -r -n 1 -p $'Please choose:' test
+    printf "\n"
+    	case $test in
+		0)
+            $(bash visualizer.sh)
+			;;
+        1)
+            exit 0
+			;;
+    	2)
+            rm -rf fails
+			;;
+		$'\e')
+            printf "\e[1;1H\e[2J"
+			exit 0
+			;;
+		*)
+            printf "\e[1;1H\e[2J"
+			printf "${WARN_COLOR}Invalid input!\n${RESET}"
+			tests
+			;;
+	esac
+}
+
 tests () {
     text
 	read -r -n 1 -p $'\n\nPlease choose:' test
@@ -202,7 +230,7 @@ own_test () {
 
 text () {
     printf "\e[1;1H\e[2J"
-    printf "\n${COM_COLOR}Philo Tester${RESET}\t$(date +%Y/%m/%d)\n\n"
+    printf "\n${COM_COLOR}42 Philosophers Tester${RESET}\t$(date +%Y/%m/%d)\n\n"
     printf "${PURPLE_BOLD}All tests\t\t\t\t[0]${RESET}\n\n"
     printf "Uneven numbers that shouldn't die\t[1]\n"
     printf "Even numbers that shouldn't die\t\t[2]\n"
@@ -214,4 +242,13 @@ text () {
 }
 
 tests
+
 rm -f test
+
+if [ -z "$(ls -A fails)" ]; then
+   rm -rf fails
+fi
+
+# if [ -d "fails" ]; then
+#     visualizer
+# fi

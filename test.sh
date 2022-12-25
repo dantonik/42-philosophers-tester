@@ -2,7 +2,7 @@
 percent=0
 count_correct_all=0
 count_false_all=0
-iterations=5
+iterations=10
 times_to_eat=10
 folder=fails/
 tempfile=tempfile
@@ -42,6 +42,7 @@ PURPLE_BOLD="\033[1;35m"
 OK_COLOR_BOLD="\033[0;32m"
 ERROR_COLOR_BOLD="\033[0;31m"
 WARN_COLOR_BOLD="\033[0;33m"
+BH_OK_COLOR="\e[1;92m"
 
 DEFCL="\033[0m"
 DEL_R="\033[A\r"
@@ -74,7 +75,7 @@ fi
 
 print_loading_bar () {
     printf "LOADING\t"
-    for (( x=0; x <= $1; x+=10)) ; do
+    for (( x=10; x <= $1; x+=10)) ; do
     {
         if (( $1 % 10 == 0 )) ; then
             printf "${BH_OK_COLOR}#${RESET}"
@@ -169,24 +170,27 @@ tests () {
 die () {
     count_false=0
     count_correct=0
+    loading_bar_count=0
     printf "\t${WARN_COLOR}$1 $2 $3 $4 $5${RESET}\n"
     for (( i=1; i <= $iterations; i++)) ; do
-        printf "$i\t"
+        print_loading_bar $(awk -v count="$loading_bar_count" -v tests="$iterations" 'BEGIN {print 100 / tests * count}')
         lines=$($philo $1 $2 $3 $4 $5 > ${tempfile})
+        end_line=$(tail -n 1 ${tempfile})
         if [ $(tail -n 1 ${tempfile} | grep -c died) -ne 0 ]; then
-            printf "${OK_COLOR}Pass${RESET}\t"
+            printf "\e[2K \r$i\t${OK_COLOR}Pass${RESET}\t"
             printf "${OK_COLOR}[✓]${RESET}\t"
             printf "$(tail -n 1 ${tempfile})\n"
             (( count_correct++ ))
             (( count_correct_all++ ))
         else
-            printf "${ERROR_COLOR}Fail${RESET}\t"
+            printf "\e[2K \r$i\t${ERROR_COLOR}Fail${RESET}\t"
             printf "${ERROR_COLOR}[x]${RESET}\t"
             printf "$(tail -n 1 ${tempfile})\n"
             cat ${tempfile} > ${folder}$1-$2-$3-$4-$5_$i
             (( count_false++ ))
             (( count_false_all++ ))
         fi
+        (( loading_bar_count++ ))
     done
     print_percent `awk -v count="$count_correct" -v tests="$iterations" 'BEGIN {print 100 / tests * count}'`
 }
@@ -194,24 +198,27 @@ die () {
 live () {
     count_false=0
     count_correct=0
+    loading_bar_count=0
     printf "\t${WARN_COLOR}$1 $2 $3 $4 $5${RESET}\n"
     for (( i=1; i <= $iterations; i++)) ; do
-        printf "$i\t"
+        print_loading_bar $(awk -v count="$loading_bar_count" -v tests="$iterations" 'BEGIN {print 100 / tests * count}')
         lines=$($philo $1 $2 $3 $4 $5 > ${tempfile})
+        end_line=$(tail -n 1 ${tempfile})
         if [ $(tail -n 1 ${tempfile} | grep -c died) -ne 0 ]; then
-            printf "${ERROR_COLOR}Fail${RESET}\t"
+            printf "\e[2K \r$i\t${ERROR_COLOR}Fail${RESET}\t"
             printf "${ERROR_COLOR}[x]${RESET}\t"
             printf "$(tail -n 1 ${tempfile})\n"
             cat ${tempfile} > ${folder}$1-$2-$3-$4-$5_$i
             (( count_false++ ))
             (( count_false_all++ ))
         else
-            printf "${OK_COLOR}Pass${RESET}\t"
+            printf "\e[2K \r$i\t${OK_COLOR}Pass${RESET}\t"
             printf "${OK_COLOR}[✓]${RESET}\t"
             printf "$(tail -n 1 ${tempfile})\n"
             (( count_correct++ ))
             (( count_correct_all++ ))
         fi
+        (( loading_bar_count++ ))
     done
     print_percent `awk -v count="$count_correct" -v tests="$iterations" 'BEGIN {print 100 / tests * count}'`
 }

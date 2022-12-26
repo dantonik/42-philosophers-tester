@@ -1,4 +1,5 @@
 #!/bin/bash
+
 percent=0
 count_correct_all=0
 count_false_all=0

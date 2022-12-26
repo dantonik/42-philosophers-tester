@@ -45,6 +45,14 @@ The output of your failed test(s) get saved in the 'fails' folder for further in
 
 ![Example](img/example.png?raw=true "Example")
 
+### Valgrind
+A simple docker Valgrind setup.
+```bash
+cd docker
+./build.sh
+./run.sh
+```
+
 ### Visualizer
 Experimental integration with a [Philosophers Visualizer](https://nafuka11.github.io/philosophers-visualizer/).
 

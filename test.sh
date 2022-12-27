@@ -17,13 +17,16 @@ function cleanup()
 }
 trap cleanup EXIT
 
-while getopts i:t: OPTION; do
+while getopts gi:t: OPTION; do
   case "$OPTION" in
     i)
       iterations="$OPTARG"
       ;;
     t)
       times_to_eat="$OPTARG"
+      ;;
+    g)
+      printf "GitHub repo testing to be implemented.\n"
       ;;
     ?)
       printf "script usage: $0 [-i iterations] [-t times_to_eat] [path]\n" >&2
@@ -107,15 +110,57 @@ visualizer () {
             printf "\e[1;1H\e[2J"
 			exit 0
 			;;
+        q)
+            printf "\e[1;1H\e[2J"
+			exit 0
+            ;;
 		*)
             printf "\e[1;1H\e[2J"
 			printf "${WARN_COLOR}Invalid input!\n${RESET}"
-			tests
+			visualizer
 			;;
 	esac
 }
 
-tests () {
+normal_hardcore () {
+    printf "\e[1;1H\e[2J"
+    printf "\n${COM_COLOR}42 Philosophers Tester${RESET}\t$(date +%Y/%m/%d)\nIterations: ${iterations}\n\n"
+    printf "${PURPLE_BOLD}Mandatory tests (eval sheet)\t\t[0]${RESET}\n\n"
+    printf "Normal tests\t\t\t\t[1]\n"
+    printf "Hardcore tests (a lot)\t\t\t[2]\n\n"
+    printf "Exit Tester\t\t\t\t[ESC]\n\n"
+	read -r -n 1 -p $'\n\nPlease choose:' test
+	printf "\n"
+	case $test in
+		0)
+            printf "\e[1;1H\e[2J"
+			mandatory_tests
+			;;
+		1)
+            printf "\e[1;1H\e[2J"
+			normal_tests
+			;;
+        2)
+            printf "\e[1;1H\e[2J"
+			hardcore_tests
+			;;
+		$'\e')
+            printf "\e[1;1H\e[2J"
+			exit 0
+			;;
+        q)
+            printf "\e[1;1H\e[2J"
+			exit 0
+            ;;
+		*)
+            printf "\e[1;1H\e[2J"
+			printf "${WARN_COLOR}Invalid input!\n${RESET}"
+			normal_hardcore
+			;;
+	esac
+}
+
+normal_tests () {
     text
 	read -r -n 1 -p $'\n\nPlease choose:' test
 	printf "\n"
@@ -162,10 +207,85 @@ tests () {
             printf "\e[1;1H\e[2J"
 			exit 0
 			;;
+        q)
+            printf "\e[1;1H\e[2J"
+			exit 0
+            ;;
 		*)
             printf "\e[1;1H\e[2J"
 			printf "${WARN_COLOR}Invalid input!\n${RESET}"
-			tests
+			normal_tests
+			;;
+	esac
+}
+
+hardcore_tests () {
+    text
+	read -r -n 1 -p $'\n\nPlease choose:' test
+	printf "\n"
+	case $test in
+		0)
+            printf "\e[1;1H\e[2J"
+			uneven_live
+            uneven_live_extended
+            even_live
+            even_live_extended
+            uneven_die
+            uneven_die_extended
+            even_die
+            even_die_extended
+			;;
+		1)
+            printf "\e[1;1H\e[2J"
+			uneven_live
+            uneven_live_extended
+			;;
+		2)
+            printf "\e[1;1H\e[2J"
+			even_live
+            even_live_extended
+			;;
+		3)
+            printf "\e[1;1H\e[2J"
+            uneven_live
+            uneven_live_extended
+			even_live
+            even_live_extended
+			;;
+		4)
+            printf "\e[1;1H\e[2J"
+            uneven_die
+            uneven_die_extended
+			;;
+		5)
+            printf "\e[1;1H\e[2J"
+			even_die
+            even_die_extended
+			;;
+		6)
+            printf "\e[1;1H\e[2J"
+            uneven_die
+            uneven_die_extended
+			even_die
+            even_die_extended
+			;;
+        7)
+            printf "\e[1;1H\e[2J"
+            own_test
+            exit 0
+            ;;
+		$'\e')
+            printf "\e[1;1H\e[2J"
+			exit 0
+			;;
+        q)
+            printf "\e[1;1H\e[2J"
+			exit 0
+            ;;
+		*)
+            printf "\e[1;1H\e[2J"
+			printf "${WARN_COLOR}Invalid input!\n${RESET}"
+			hardcore_tests
 			;;
 	esac
 }
@@ -235,6 +355,14 @@ print_percent () {
         printf "\t${ERROR_COLOR_BOLD}$1 %% correct${RESET}\n"
     fi
     printf "____________________________________________\n"
+}
+
+mandatory_tests () {
+    printf "${OBJ_COLOR}Mandatory tests${RESET}\n\n"
+    die 1 800 200 200 $times_to_eat
+    live 5 800 200 200 7
+    live 4 410 200 200 $times_to_eat
+    die 4 310 200 100 $times_to_eat
 }
 
 uneven_live () {
@@ -362,7 +490,7 @@ text () {
     printf "Exit Tester\t\t\t\t[ESC]\n\n"
 }
 
-tests
+normal_hardcore
 rm -f test
 printf "\n${BOLD}RESULT: passed: ${count_correct_all}\tfailed: ${count_false_all}${RESET}\n"
 print_percent `awk -v count="$count_correct_all" -v tests_fail="$count_false_all" 'BEGIN {print 100 / (count + tests_fail) * count}'`

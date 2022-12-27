@@ -59,6 +59,10 @@ Experimental integration with a [Philosophers Visualizer](https://nafuka11.githu
 ### Why
 Because the [Lazy Philosophers Tester](https://github.com/MichelleJiam/LazyPhilosophersTester) is a bit tedious and only semiautomatic.
 
+### Ressources
+[ntroduction to Parallel Computing](https://web.archive.org/web/20201109032323/https://computing.llnl.gov/tutorials/parallel_comp/?)
+[POSIX Threads Programming](https://web.archive.org/web/20210306083711/https://computing.llnl.gov/tutorials/pthreads/)
+
 ### Future ideas
 - Leak checking
 - Visualizer
